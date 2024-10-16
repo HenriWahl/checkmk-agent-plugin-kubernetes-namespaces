@@ -17,7 +17,7 @@ The collected data are retrieved from local `kubectl` commands.
   - PersistentVolumes
   - Pods
   - ReplicaSets
-- Set percentage thresholds for persistent volumes
+- Set percentage thresholds for PersistentVolume usage
 - Set thresholds for CronJob counts
 - Special feature: monitors the capacity of persistent volumes
 
