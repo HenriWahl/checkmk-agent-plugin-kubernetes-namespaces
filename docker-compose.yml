@@ -1,0 +1,21 @@
+volumes:
+  sites:
+
+services:
+  checkmk:
+    image: checkmk/check-mk-raw:2.3.0p17
+    restart: no
+    ports:
+      - 5000:5000
+    environment:
+      CMK_PASSWORD: Kubernetes123!
+      CMK_SITE_ID: cmk
+    volumes:
+      - sites:/omd/sites
+      - ${PWD}/mkp/lib/python3/cmk/base/plugins/agent_based/kubernetes_namespaces.py:/omd/versions/default/lib/python3/cmk/base/plugins/agent_based/kubernetes_namespaces.py
+      - ${PWD}/mkp/lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py:/omd/versions/default/lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py
+      - ${PWD}/mkp/agents/plugins/kubernetes_namespaces.py:/omd/versions/default/share/agents/plugins/kubernetes_namespaces.py
+      - ${PWD}/mkp/web/plugins/metrics/kubernetes_namespaces.py:/omd/versions/default/share/web/plugins/metrics/kubernetes_namespaces.py
+      - ${PWD}/mkp/web/plugins/wato/kubernetes_namespaces.py:/omd/versions/default/share/check_mk/web/plugins/wato/kubernetes_namespaces.py
+      - ${PWD}/mkp/web/plugins/wato/kubernetes_namespaces_bakery.py:/omd/versions/default/share/check_mk/web/plugins/wato/kubernetes_namespaces_bakery.py
+

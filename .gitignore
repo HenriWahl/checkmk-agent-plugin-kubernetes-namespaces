@@ -1,0 +1,7 @@
+/.idea
+*.pyc
+*.json
+*.mkp
+__pycache__/
+*.yml
+*.yaml

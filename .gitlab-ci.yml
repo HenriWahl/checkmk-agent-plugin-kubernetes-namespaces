@@ -1,0 +1,53 @@
+# OMG this actually works!
+
+variables:
+  # shorter version to be used for release and package registry
+  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/kubernetes-namespaces/${CI_COMMIT_TAG}"
+  # Checkmk version
+  CHECKMK_VERSION: 2.3.0p17
+  # full image URL
+  CR_IMAGE_URL: "${CI_REGISTRY_IMAGE}/build:${CHECKMK_VERSION}"
+
+# build the MKP package from inside a running Checkmk instance
+build:
+  # shell runner makes life easier for docker run -v ${PWD}
+  tags:
+    - shell
+  only:
+    - tags
+  script:
+    # login at registry just in case
+    - echo "${CI_REGISTRY_PASSWORD}" | docker login ${CI_REGISTRY} --username ${CI_REGISTRY_USER} --password-stdin
+    # try to pull image - if it fails because image tag is not existing, build it
+    - |
+      docker pull ${CR_IMAGE_URL} \
+      || \
+      docker build -t ${CR_IMAGE_URL} --build-arg CHECKMK_VERSION=${CHECKMK_VERSION} -f build/Dockerfile .
+    # login at registry just in case once again
+    - echo "${CI_REGISTRY_PASSWORD}" | docker login ${CI_REGISTRY} --username ${CI_REGISTRY_USER} --password-stdin
+    # push build image - in case it already existed no push will happen
+    - docker push ${CR_IMAGE_URL}
+    # finally build
+    - docker run --volume ${PWD}:/source ${CR_IMAGE_URL}
+  artifacts:
+    # store output as artifact to be able to process it in the release stage - otherwise all results of this
+    # stage will be wiped out
+    paths:
+      - '*.mkp'
+    # artifacts are not needed after build
+    expire_in: 1 hour
+
+# push to Gitlab registry and add release with tag
+release:
+  needs:
+    - build
+  tags:
+    - shell
+  only:
+    - tags
+  script:
+    - export RELEASE_FILE=$(ls -t *.mkp | head -n1)
+    - echo ${PACKAGE_REGISTRY_URL}
+    - 'curl --header "Job-Token: ${CI_JOB_TOKEN}" --upload-file "${RELEASE_FILE}" "${PACKAGE_REGISTRY_URL}/${RELEASE_FILE}"'
+    # release-cli comes from ansible role 'gitlab_runner' - needed there if shell executor is used
+    - 'release-cli --server-url ${CI_SERVER_URL} --job-token ${CI_JOB_TOKEN} create --tag-name ${CI_COMMIT_TAG} --assets-link "{\"name\":\"${RELEASE_FILE}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${RELEASE_FILE}\"}"'
