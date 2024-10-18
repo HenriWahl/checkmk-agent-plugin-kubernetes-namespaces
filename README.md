@@ -5,7 +5,7 @@
 This project provides a Checkmk agent plugin for monitoring Kubernetes namespaces and their resources.
 It includes server-side WATO settings for configuring some monitoring parameters.
 
-An agent plugin will be installed on the Kubernetes nodes. The plugin will collect the data deliver it to the Checkmk server.
+An agent plugin will be installed on the Kubernetes nodes. The plugin will collect the data and deliver it to the Checkmk server.
 The collected data are retrieved from local `kubectl` commands.
 
 ## Features
