@@ -15,7 +15,7 @@ services:
       - sites:/omd/sites
       - ${PWD}/mkp/lib/python3/cmk/base/plugins/agent_based/kubernetes_namespaces.py:/omd/versions/default/lib/python3/cmk/base/plugins/agent_based/kubernetes_namespaces.py
       - ${PWD}/mkp/lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py:/omd/versions/default/lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py
-      - ${PWD}/mkp/agents/plugins/kubernetes_namespaces.py:/omd/versions/default/share/agents/plugins/kubernetes_namespaces.py
+      - ${PWD}/mkp/agents/plugins/kubernetes_namespaces:/omd/versions/default/share/agents/plugins/kubernetes_namespaces
       - ${PWD}/mkp/web/plugins/metrics/kubernetes_namespaces.py:/omd/versions/default/share/web/plugins/metrics/kubernetes_namespaces.py
       - ${PWD}/mkp/web/plugins/wato/kubernetes_namespaces.py:/omd/versions/default/share/check_mk/web/plugins/wato/kubernetes_namespaces.py
       - ${PWD}/mkp/web/plugins/wato/kubernetes_namespaces_cee.py:/omd/versions/default/share/check_mk/web/plugins/wato/kubernetes_namespaces_cee.py

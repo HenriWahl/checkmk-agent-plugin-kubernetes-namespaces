@@ -35,7 +35,7 @@ def get_kubernetes_namespaces_plugin_files(conf: KubernetesNamespacesConfig) -> 
     # plugin script
     yield Plugin(
         base_os=OS.LINUX,
-        source=Path('kubernetes_namespaces.py'),
+        source=Path('kubernetes_namespaces'),
         interval=interval)
     if 'kubeconfig_path' in conf:
         yield PluginConfig(base_os=OS.LINUX,

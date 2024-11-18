@@ -76,9 +76,9 @@ def configure_plugin():
                     key, value = split_line
                     # Set the environment variable
                     environ[key] = value
-    except PermissionError:
-        # file does not exist or is not readable
-        pass
+    # something went wrong
+    except Exception as exception:
+        print(exception)
 
 
 def get_kubectl_binary() -> str:
