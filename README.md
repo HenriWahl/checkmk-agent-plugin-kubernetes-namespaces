@@ -15,6 +15,7 @@ The collected data are retrieved from local `kubectl` commands.
   - DaemonSets
   - Deployments
   - PersistentVolumes
+    - 🥳 special feature: monitor the capacity of persistent volumes
   - Pods
   - ReplicaSets
 - Set percentage thresholds for PersistentVolume usage
