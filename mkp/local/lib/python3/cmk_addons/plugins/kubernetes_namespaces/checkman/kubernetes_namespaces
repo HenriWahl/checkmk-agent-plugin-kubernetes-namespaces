@@ -1,0 +1,12 @@
+title: Kubernetes Namespaces Check
+agents: linux
+author: Henri Wahl <henri@nagstamon.de>
+catalog: generic
+license: GPL
+distribution: check_mk
+description:
+ TBW
+
+inventory:
+ TBW
+
