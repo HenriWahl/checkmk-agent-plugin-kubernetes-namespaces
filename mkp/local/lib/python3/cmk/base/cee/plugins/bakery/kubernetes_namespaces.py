@@ -1,50 +1,66 @@
-# Server-side bakery part of plugin for monitoring Kubernetes namespaces
-# Bakery definition at lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py
-# inspired by https://exchange.checkmk.com/p/hello-bakery and
-# https://github.com/mschlenker/checkmk-snippets/tree/main/mkp/hellobakery
-# ©2024 henri.wahl@ukdd.de
+#!/usr/bin/env python3
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
 
 from pathlib import Path
-from typing import TypedDict, List
+from typing import Any
 
-# Import API code
-from .bakery_api.v1 import (FileGenerator,
-                            OS,
-                            Plugin,
-                            PluginConfig,
-                            register)
+from cmk.base.cee.plugins.bakery.bakery_api.v1 import FileGenerator, OS, Plugin, PluginConfig, register
 
 
-class KubernetesNamespacesConfig(TypedDict, total=False):
+def get_kubernetes_namespaces_files(conf: Any) -> FileGenerator:
     """
-    Configuration class for Kubernetes Namespaces plugin.
+    Simple bakery plugin generator for kubernetes_namespaces
+
+    conf looks like: {'deployment': ('deploy', {'interval': 60.0}), 'kubeconfig_path': '/etc/kubernetes/admin.conf'}
+    mind the tuple!
     """
-    interval: int
 
+    # debugging
+    # with open('/tmp/debug.txt', 'a') as debug_file:
+    #     debug_file.write(f'config: {conf}\n')
 
-def get_kubernetes_namespaces_plugin_files(conf: KubernetesNamespacesConfig) -> FileGenerator:
-    """
-    Generate the plugin files for Kubernetes Namespaces.
+    if isinstance(conf, dict):
+        # default to no interval - will be filled if set in config
+        interval = None
+        kubeconfig_path = None
 
-    :param conf: Configuration dictionary for the plugin.
-    :return: Generator yielding Plugin objects.
-    """
-    # settings from WATO
-    interval = conf.get('interval')
+        # new config structure since version 2.4
+        if conf.get('deployment'):
+            if 'deploy' in conf['deployment']:
+                # this is a tuple ('deploy', { ... })
+                deploy = conf['deployment'][1]
+                if isinstance(deploy, dict) and \
+                        deploy.get('interval'):
+                    interval = int(deploy['interval'])
+                if isinstance(deploy, dict) and \
+                        deploy.get('kubeconfig_path'):
+                    kubeconfig_path = deploy.get('kubeconfig_path')
+            elif 'no_deploy' in conf['deployment']:
+                return
 
-    # plugin script
-    yield Plugin(
-        base_os=OS.LINUX,
-        source=Path('kubernetes_namespaces'),
-        interval=interval)
-    if 'kubeconfig_path' in conf:
+        # backward compatibility - check older config options
+        else:
+            if conf.get('interval') is not None:
+                interval = conf.get('interval')
+            if conf.get('kubeconfig_path') is not None:
+                kubeconfig_path = conf.get('kubeconfig_path')
+
+    # only makes sense on Linux so just create for that OS
+    yield Plugin(base_os=OS.LINUX,
+                 source=Path('kubernetes_namespaces'),
+                 interval=interval
+                 )
+    
+    # add config file if kubeconfig_path is set
+    if kubeconfig_path:
         yield PluginConfig(base_os=OS.LINUX,
-                           lines=[f"KUBECONFIG={conf['kubeconfig_path']}"],
+                           lines=[f"KUBECONFIG={kubeconfig_path}"],
                            target=Path("kubernetes_namespaces.cfg"),
                            include_header=True)
 
 
+# register the bakery plugin with its arguments
 register.bakery_plugin(
     name='kubernetes_namespaces',
-    files_function=get_kubernetes_namespaces_plugin_files
+    files_function=get_kubernetes_namespaces_files
 )

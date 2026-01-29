@@ -1,10 +1,9 @@
-# Server-side plugin for monitoring Kubernetes namespaces,
-# resides at lib/python3/cmk/base/plugins/agent_based/kubernetes_namespaces.py
+#!/usr/bin/env python3
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+# Server-side plugin for monitoring Kubernetes namespaces
 # ©2024 henri.wahl@ukdd.de
 
-from datetime import datetime
-
-from .agent_based_api.v1 import Metric, register, Result, Service, State
+from cmk.agent_based.v2 import AgentSection, CheckPlugin, CheckResult, DiscoveryResult, Metric, Result, Service, State
 
 # separates Kubernetes resources in the item name
 SEPARATOR = ' / '
@@ -325,12 +324,12 @@ def check_kubernetes_namespaces(item, params, section):
                     yield Result(state=state, summary=summary)
 
 
-register.agent_section(
+agent_section_kubernetes_namespaces = AgentSection(
     name='kubernetes_namespaces',
     parse_function=parse_kubernetes_namespaces
 )
 
-register.check_plugin(
+check_plugin_kubernetes_namespaces = CheckPlugin(
     name='kubernetes_namespaces',
     sections=['kubernetes_namespaces'],
     service_name='K8s %s',
