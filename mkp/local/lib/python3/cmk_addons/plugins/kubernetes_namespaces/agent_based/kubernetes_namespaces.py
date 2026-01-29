@@ -1,10 +1,11 @@
-# Server-side plugin for monitoring Kubernetes namespaces,
-# resides at lib/python3/cmk/base/plugins/agent_based/kubernetes_namespaces.py
+#!/usr/bin/env python3
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+# Server-side plugin for monitoring Kubernetes namespaces
 # ©2024 henri.wahl@ukdd.de
 
-from datetime import datetime
+import ast
 
-from .agent_based_api.v1 import Metric, register, Result, Service, State
+from cmk.agent_based.v2 import AgentSection, CheckPlugin, CheckResult, DiscoveryResult, Metric, Result, Service, State
 
 # separates Kubernetes resources in the item name
 SEPARATOR = ' / '
@@ -47,8 +48,8 @@ def parse_kubernetes_namespaces(string_table):
     for line in string_table:
         if len(line) > 0:
             try:
-                # eval() is used to convert the string to a real dictionary
-                parsed_lines.append(eval(line[0]))
+                # ast.literal_eval() is used to safely convert the string to a real dictionary
+                parsed_lines.append(ast.literal_eval(line[0]))
             except Exception as exception:
                 print(exception)
                 return (list())
@@ -162,10 +163,20 @@ def check_kubernetes_namespaces(item, params, section):
     resource_name = item.split(SEPARATOR)[-1]
 
     # Get warning and critical thresholds for persistent volumes and cronjob age
-    percentage_persistent_volumes_warning, percentage_persistent_volumes_critical = params.get(
-        'percentage_persistent_volumes')
-    threshold_cronjob_count_warning, threshold_cronjob_count_critical = params.get(
-        'threshold_cronjob_count')
+    # SimpleLevels returns tuple like ('fixed', (warn, crit)) or ('no_levels', None)
+    pv_levels = params.get('percentage_persistent_volumes')
+    if pv_levels and isinstance(pv_levels, tuple) and pv_levels[0] == 'fixed':
+        percentage_persistent_volumes_warning, percentage_persistent_volumes_critical = pv_levels[1]
+    else:
+        # Use defaults if no levels are set
+        percentage_persistent_volumes_warning, percentage_persistent_volumes_critical = (80.0, 90.0)
+
+    cronjob_levels = params.get('threshold_cronjob_count')
+    if cronjob_levels and isinstance(cronjob_levels, tuple) and cronjob_levels[0] == 'fixed':
+        threshold_cronjob_count_warning, threshold_cronjob_count_critical = cronjob_levels[1]
+    else:
+        # Use defaults if no levels are set
+        threshold_cronjob_count_warning, threshold_cronjob_count_critical = (2, 3)
 
     # Filter the section to find the namespace
     namespace_list = [x for x in section if x.get('name') == namespace_name]
@@ -285,7 +296,7 @@ def check_kubernetes_namespaces(item, params, section):
                         for pod in kubernetes_object.values():
                             containers = pod.get('containers')
                             if containers:
-                                # variuos pod states are summed up for a final summary
+                                # various pod states are summed up for a final summary
                                 crashing += len(containers.get('crashing', []))
                                 running += len(containers.get('running', []))
                                 terminated += len(containers.get('terminated', []))
@@ -325,12 +336,12 @@ def check_kubernetes_namespaces(item, params, section):
                     yield Result(state=state, summary=summary)
 
 
-register.agent_section(
+agent_section_kubernetes_namespaces = AgentSection(
     name='kubernetes_namespaces',
     parse_function=parse_kubernetes_namespaces
 )
 
-register.check_plugin(
+check_plugin_kubernetes_namespaces = CheckPlugin(
     name='kubernetes_namespaces',
     sections=['kubernetes_namespaces'],
     service_name='K8s %s',
@@ -338,7 +349,7 @@ register.check_plugin(
     discovery_ruleset_name='kubernetes_namespaces',
     discovery_default_parameters={},
     check_function=check_kubernetes_namespaces,
-    check_default_parameters={'percentage_persistent_volumes': (80.0, 90.0),
-                              'threshold_cronjob_count': (2, 3)},
+    check_default_parameters={'percentage_persistent_volumes': ('fixed', (80.0, 90.0)),
+                              'threshold_cronjob_count': ('fixed', (2, 3))},
     check_ruleset_name='kubernetes_namespaces'
 )
