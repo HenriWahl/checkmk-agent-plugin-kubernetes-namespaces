@@ -49,6 +49,7 @@ jobs:
       - run: chmod go+rw ${CMK}/local/lib/python3/cmk/base/cee/plugins/bakery
       - run: chmod go+rw ${CMK}/local/lib/python3/cmk_addons/plugins/kubernetes_namespaces/agent_based
       - run: chmod go+rw ${CMK}/local/lib/python3/cmk_addons/plugins/kubernetes_namespaces/checkman
+      - run: chmod go+rw ${CMK}/local/lib/python3/cmk_addons/plugins/kubernetes_namespaces/graphing
       - run: chmod go+rw ${CMK}/local/lib/python3/cmk_addons/plugins/kubernetes_namespaces/rulesets
       - run: cat ${CMK}/tmp/check_mk/kubernetes_namespaces.manifest.temp
       - run: ${SU} "mkp package ${CMK}/tmp/check_mk/kubernetes_namespaces.manifest.temp"
