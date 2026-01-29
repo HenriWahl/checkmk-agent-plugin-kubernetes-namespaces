@@ -4,6 +4,7 @@
  'files': {'agents': ['plugins/kubernetes_namespaces'],
            'cmk_addons_plugins': ['kubernetes_namespaces/agent_based/kubernetes_namespaces.py',
                                   'kubernetes_namespaces/checkman/kubernetes_namespaces',
+                                  'kubernetes_namespaces/graphing/kubernetes_namespaces.py',
                                   'kubernetes_namespaces/rulesets/kubernetes_namespaces.py',
                                   'kubernetes_namespaces/rulesets/kubernetes_namespaces_cee.py',
                                   'kubernetes_namespaces/rulesets/kubernetes_namespaces_check_parameters.py'],
