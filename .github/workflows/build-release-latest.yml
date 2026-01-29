@@ -29,6 +29,8 @@ jobs:
   build-package:
     runs-on: ubuntu-latest
     needs: build-image
+    permissions:
+      contents: read
     container:
       image: ${{ needs.build-image.outputs.image }}
       env:
