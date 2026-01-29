@@ -48,7 +48,6 @@ if len(argv) > 2:
         package_config['version.min_required'] = '2.3.0'
 
         # write package config file
-        bla = pformat(package_config, indent=4)
         with open(package_file_path, 'w') as package_file:
             # nicely format config file with pformat
             package_file.write(pformat(package_config, indent=4))
