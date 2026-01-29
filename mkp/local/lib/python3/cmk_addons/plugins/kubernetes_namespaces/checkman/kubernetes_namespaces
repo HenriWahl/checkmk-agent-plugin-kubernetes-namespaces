@@ -30,29 +30,6 @@ description:
  - {ReplicaSets}: Monitors replica set status. Returns {CRIT} if not all replicas are ready.
    Tracks total replicas, ready replicas, and unavailable replicas.
 
- All monitored resources generate performance metrics that can be graphed in Checkmk.
-
- The agent plugin must be deployed via the agent bakery where you can configure the data collection
- interval and optionally specify a custom KUBECONFIG path.
 
 inventory:
- One service is created for each monitored resource in each namespace:
-
- - For detailed resources (CronJobs, DaemonSets, Deployments, PersistentVolumes, ReplicaSets):
-   One service per resource instance with the format "K8s {namespace} / {resource_type} / {resource_name}"
-
- - For aggregated resources (Pods):
-   One service per namespace with the format "K8s {namespace} / pods"
-
- Discovery can be configured through the "Kubernetes Namespaces Discovery" rule to:
-
- - Monitor all namespaces and all resource types (default behavior)
-
- - Monitor only specific namespaces
-
- - Enable or disable specific resource types per namespace
-
- - Apply different resource type selections to different namespaces
-
- If no discovery parameters are set, all available resources in all namespaces are discovered.
 

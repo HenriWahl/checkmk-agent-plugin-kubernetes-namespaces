@@ -1,5 +1,8 @@
-#!/usr/bin/env python3
-# -*- encoding: utf-8; py-indent-offset: 4 -*-
+# Server-side bakery part of plugin for monitoring Kubernetes namespaces
+# Bakery definition at lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py
+# inspired by https://exchange.checkmk.com/p/hello-bakery and
+# https://github.com/mschlenker/checkmk-snippets/tree/main/mkp/hellobakery
+# ©2024 henri.wahl@ukdd.de
 
 from pathlib import Path
 from typing import Any

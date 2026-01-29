@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-# -*- encoding: utf-8; py-indent-offset: 4 -*-
-# Server-side metrics settings for plugin for monitoring Kubernetes namespaces
+# Server-side metrics settings for plugin for monitoring Kubernetes namespaces,
 # ©2024 henri.wahl@ukdd.de
 
 from cmk.graphing.v1 import Title, Color, graphs, metrics
