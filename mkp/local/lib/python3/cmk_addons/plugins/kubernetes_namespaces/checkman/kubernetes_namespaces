@@ -5,13 +5,54 @@ catalog: generic
 license: GPL
 distribution: check_mk
 description:
- This check monitors the status of Kubernetes namespaces.
- You need to install the plugin {kubernetes_namespaces}
- into the {plugins} directory of your agent.
+ This check monitors the status of Kubernetes namespace resources on nodes where the agent plugin
+ is deployed. The plugin collects data from the local Kubernetes cluster using {kubectl} commands
+ and does not require any additional installation on the cluster itself.
 
- The check monitors namespace status and resources.
+ The check monitors the following Kubernetes resources within namespaces:
+
+ - {CronJobs}: Monitors the number of active CronJob instances. Returns {WARN}/{CRIT} if the number
+   of active jobs exceeds configurable thresholds (default: 2/3).
+
+ - {DaemonSets}: Monitors the scheduling status of DaemonSets. Returns {CRIT} if any pods are unavailable.
+   Tracks current number scheduled, desired number scheduled, number ready, and number unavailable.
+
+ - {Deployments}: Monitors deployment replica status. Returns {CRIT} if not all replicas are ready.
+   Tracks total replicas, ready replicas, and unavailable replicas.
+
+ - {PersistentVolumes}: Monitors the capacity usage of persistent volumes. Returns {WARN}/{CRIT} if
+   usage exceeds configurable percentage thresholds (default: 80%/90%). Displays used space, total
+   capacity, and usage percentage in human-readable format.
+
+ - {Pods}: Monitors pod container states across the namespace. Returns {CRIT} if any containers are
+   in a crashing state. Aggregates counts of running, waiting, terminated, and crashing containers.
+
+ - {ReplicaSets}: Monitors replica set status. Returns {CRIT} if not all replicas are ready.
+   Tracks total replicas, ready replicas, and unavailable replicas.
+
+ All monitored resources generate performance metrics that can be graphed in Checkmk.
+
+ The agent plugin must be deployed via the agent bakery where you can configure the data collection
+ interval and optionally specify a custom KUBECONFIG path.
 
 inventory:
- One service will be created for each Kubernetes namespace
- where the {kubernetes_namespaces} plugin produces a non-empty output.
+ One service is created for each monitored resource in each namespace:
+
+ - For detailed resources (CronJobs, DaemonSets, Deployments, PersistentVolumes, ReplicaSets):
+   One service per resource instance with the format "K8s {namespace} / {resource_type} / {resource_name}"
+
+ - For aggregated resources (Pods):
+   One service per namespace with the format "K8s {namespace} / pods"
+
+ Discovery can be configured through the "Kubernetes Namespaces Discovery" rule to:
+
+ - Monitor all namespaces and all resource types (default behavior)
+
+ - Monitor only specific namespaces
+
+ - Enable or disable specific resource types per namespace
+
+ - Apply different resource type selections to different namespaces
+
+ If no discovery parameters are set, all available resources in all namespaces are discovered.
 
