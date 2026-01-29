@@ -30,33 +30,27 @@ def _migrate_int_to_float(value: object) -> Mapping[str, object]:
     migrate from integer interval to float interval
     """
     if value is not None:
-        # backward compatibility - migrate from deploy to deployment
+        # backward compatibility - migrate from old format
         if value.get('interval'):
             return {
-                'deployment': {
-                    'deploy': {
-                        'interval': float(value['interval']),
-                        'kubeconfig_path': value.get('kubeconfig_path', '')
-                    }
-                }
+                'deployment': ('deploy', {
+                    'interval': float(value['interval']),
+                    'kubeconfig_path': value.get('kubeconfig_path', '')
+                })
             }
         # backward compatibility
         elif value.get('kubeconfig_path'):
             return {
-                'deployment': {
-                    'deploy': {
-                        'interval': DEFAULT_INTERVAL,
-                        'kubeconfig_path': value.get('kubeconfig_path')
-                    }
-                }
+                'deployment': ('deploy', {
+                    'interval': DEFAULT_INTERVAL,
+                    'kubeconfig_path': value.get('kubeconfig_path')
+                })
             }
         else:
             return value
     else:
         return {
-            'deployment': {
-                'no_deploy': True
-            }
+            'deployment': ('no_deploy', True)
         }
 
 

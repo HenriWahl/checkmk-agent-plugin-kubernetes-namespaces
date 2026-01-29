@@ -3,7 +3,7 @@
 # Server-side metrics settings for plugin for monitoring Kubernetes namespaces
 # ©2024 henri.wahl@ukdd.de
 
-from cmk.graphing.v1 import Title, Color, graphs, metrics, perfometers
+from cmk.graphing.v1 import Title, Color, graphs, metrics
 
 # --- PersistentVolumes ---
 
@@ -165,21 +165,21 @@ metric_cronjobs_active = metrics.Metric(
 
 metric_replicasets_replicas = metrics.Metric(
     name='replicasets_replicas',
-    title=Title('Replicasets Replicas'),
+    title=Title('ReplicaSets Replicas'),
     unit=metrics.Unit(metrics.DecimalNotation("")),
     color=Color.DARK_GREEN,
 )
 
 metric_replicasets_ready_replicas = metrics.Metric(
     name='replicasets_ready_replicas',
-    title=Title('Replicasets Ready Replicas'),
+    title=Title('ReplicaSets Ready Replicas'),
     unit=metrics.Unit(metrics.DecimalNotation("")),
     color=Color.GREEN,
 )
 
 metric_replicasets_unavailable_replicas = metrics.Metric(
     name='replicasets_unavailable_replicas',
-    title=Title('Replicasets Unavailable Replicas'),
+    title=Title('ReplicaSets Unavailable Replicas'),
     unit=metrics.Unit(metrics.DecimalNotation("")),
     color=Color.RED,
 )

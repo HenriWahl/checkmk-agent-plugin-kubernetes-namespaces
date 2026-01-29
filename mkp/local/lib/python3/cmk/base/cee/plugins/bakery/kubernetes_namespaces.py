@@ -11,7 +11,7 @@ def get_kubernetes_namespaces_files(conf: Any) -> FileGenerator:
     """
     Simple bakery plugin generator for kubernetes_namespaces
 
-    conf looks like: {'deployment': ('deploy', {'interval': 60.0}), 'kubeconfig_path': '/etc/kubernetes/admin.conf'}
+    conf looks like: {'deployment': ('deploy', {'interval': 60.0, 'kubeconfig_path': '/etc/kubernetes/admin.conf'})}
     mind the tuple!
     """
 
@@ -26,7 +26,7 @@ def get_kubernetes_namespaces_files(conf: Any) -> FileGenerator:
 
         # new config structure since version 2.4
         if conf.get('deployment'):
-            if 'deploy' in conf['deployment']:
+            if isinstance(conf['deployment'], tuple) and conf['deployment'][0] == 'deploy':
                 # this is a tuple ('deploy', { ... })
                 deploy = conf['deployment'][1]
                 if isinstance(deploy, dict) and \
@@ -35,7 +35,7 @@ def get_kubernetes_namespaces_files(conf: Any) -> FileGenerator:
                 if isinstance(deploy, dict) and \
                         deploy.get('kubeconfig_path'):
                     kubeconfig_path = deploy.get('kubeconfig_path')
-            elif 'no_deploy' in conf['deployment']:
+            elif isinstance(conf['deployment'], tuple) and conf['deployment'][0] == 'no_deploy':
                 return
 
         # backward compatibility - check older config options
@@ -50,7 +50,7 @@ def get_kubernetes_namespaces_files(conf: Any) -> FileGenerator:
                  source=Path('kubernetes_namespaces'),
                  interval=interval
                  )
-    
+
     # add config file if kubeconfig_path is set
     if kubeconfig_path:
         yield PluginConfig(base_os=OS.LINUX,
