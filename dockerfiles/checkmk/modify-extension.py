@@ -21,9 +21,6 @@ if len(argv) > 2:
     if Path(package_file_path).exists() and Path(package_file_path).is_file():
         # get version information from git repo
         repo = Repo(path=git_repo_path, search_parent_directories=True)
-
-        print(repo.head.commit)
-
         # if no tag is latest take repo head
         version_repo = next((tag for tag in repo.tags if tag.commit == repo.head.commit), repo.head.commit)
         if type(version_repo) == Commit:

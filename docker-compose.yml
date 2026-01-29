@@ -3,20 +3,29 @@ volumes:
 
 services:
   checkmk:
-    #image: checkmk/check-mk-raw:2.3.0p19
-    image: checkmk/check-mk-cloud:2.3.0p19
-    restart: no
+    # feature equivalent to enterprise edition but just 30 days trial
+    # nice to check extension GUI stuff
+    image: checkmk-kubernetes-namespaces
+    build:
+      context: .
+      dockerfile: dockerfiles/checkmk/Dockerfile
+      args:
+        #CHECKMK_VERSION: 2.4.0p19
+        CHECKMK_VERSION: 2.3.0p38
+        CMK_PASSWORD: cmkadmin
+        CMK_SITE_ID: cmk
+    restart: unless-stopped
     ports:
       - 5000:5000
     environment:
-      CMK_PASSWORD: Kubernetes123!
+      CMK_PASSWORD: cmkadmin
       CMK_SITE_ID: cmk
     volumes:
-      - sites:/omd/sites
-      - ${PWD}/mkp/lib/python3/cmk/base/plugins/agent_based/kubernetes_namespaces.py:/omd/versions/default/lib/python3/cmk/base/plugins/agent_based/kubernetes_namespaces.py
-      - ${PWD}/mkp/lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py:/omd/versions/default/lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py
-      - ${PWD}/mkp/agents/plugins/kubernetes_namespaces:/omd/versions/default/share/agents/plugins/kubernetes_namespaces
-      - ${PWD}/mkp/web/plugins/metrics/kubernetes_namespaces.py:/omd/versions/default/share/web/plugins/metrics/kubernetes_namespaces.py
-      - ${PWD}/mkp/web/plugins/wato/kubernetes_namespaces.py:/omd/versions/default/share/check_mk/web/plugins/wato/kubernetes_namespaces.py
-      - ${PWD}/mkp/web/plugins/wato/kubernetes_namespaces_cee.py:/omd/versions/default/share/check_mk/web/plugins/wato/kubernetes_namespaces_cee.py
-
+      # meta-info about package for Checkmk extensions management
+      - ${PWD}/mkp/var/check_mk/packages/kubernetes_namespaces:/omd/sites/cmk/var/check_mk/packages/kubernetes_namespaces
+      # agent plugin to run on monitored hosts
+      - ${PWD}/mkp/local/share/check_mk/agents/plugins/kubernetes_namespaces:/omd/sites/cmk/local/share/check_mk/agents/plugins/kubernetes_namespaces
+      # bakery - not fully upgraded to the new layout in Checkmk 2.4 itself
+      - ${PWD}/mkp/local/lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py:/omd/sites/cmk/local/lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py
+      # already updated part of plugin
+      - ${PWD}/mkp/local/lib/python3/cmk_addons/plugins/kubernetes_namespaces:/omd/sites/cmk/local/lib/python3/cmk_addons/plugins/kubernetes_namespaces
