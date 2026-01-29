@@ -11,8 +11,7 @@ def get_kubernetes_namespaces_files(conf: Any) -> FileGenerator:
     """
     Simple bakery plugin generator for kubernetes_namespaces
 
-    conf looks like: {'deployment': ('deploy', {'interval': 60.0, 'kubeconfig_path': '/etc/kubernetes/admin.conf'})}
-    mind the tuple!
+    conf is a simple dictionary like: {'interval': 60.0, 'kubeconfig_path': '/etc/kubernetes/admin.conf'}
     """
 
     # debugging
@@ -20,30 +19,14 @@ def get_kubernetes_namespaces_files(conf: Any) -> FileGenerator:
     #     debug_file.write(f'config: {conf}\n')
 
     if isinstance(conf, dict):
-        # default to no interval - will be filled if set in config
+        # Extract interval and kubeconfig_path directly from the dictionary
         interval = None
         kubeconfig_path = None
 
-        # new config structure since version 2.4
-        if conf.get('deployment'):
-            if isinstance(conf['deployment'], tuple) and conf['deployment'][0] == 'deploy':
-                # this is a tuple ('deploy', { ... })
-                deploy = conf['deployment'][1]
-                if isinstance(deploy, dict) and \
-                        deploy.get('interval'):
-                    interval = int(deploy['interval'])
-                if isinstance(deploy, dict) and \
-                        deploy.get('kubeconfig_path'):
-                    kubeconfig_path = deploy.get('kubeconfig_path')
-            elif isinstance(conf['deployment'], tuple) and conf['deployment'][0] == 'no_deploy':
-                return
-
-        # backward compatibility - check older config options
-        else:
-            if conf.get('interval') is not None:
-                interval = conf.get('interval')
-            if conf.get('kubeconfig_path') is not None:
-                kubeconfig_path = conf.get('kubeconfig_path')
+        if conf.get('interval') is not None:
+            interval = int(conf['interval'])
+        if conf.get('kubeconfig_path'):
+            kubeconfig_path = conf.get('kubeconfig_path')
 
     # only makes sense on Linux so just create for that OS
     yield Plugin(base_os=OS.LINUX,
