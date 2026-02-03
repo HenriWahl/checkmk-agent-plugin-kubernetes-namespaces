@@ -2,7 +2,7 @@ services:
   checkmk:
     # feature equivalent to enterprise edition but just 30 days trial
     # nice to check extension GUI stuff
-    image: checkmk-yum
+    image: checkmk-kubernetes_namespaces
     build:
       context: .
       dockerfile: dockerfiles/checkmk/Dockerfile
@@ -16,10 +16,11 @@ services:
     environment:
       TZ: Europe/Berlin
     volumes:
-      - ${PWD}/mkp/lib/python3/cmk/base/plugins/agent_based/kubernetes_namespaces.py:/omd/versions/default/lib/python3/cmk/base/plugins/agent_based/kubernetes_namespaces.py
-      - ${PWD}/mkp/lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py:/omd/versions/default/lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py
-      - ${PWD}/mkp/agents/plugins/kubernetes_namespaces:/omd/versions/default/share/agents/plugins/kubernetes_namespaces
-      - ${PWD}/mkp/web/plugins/metrics/kubernetes_namespaces.py:/omd/versions/default/share/web/plugins/metrics/kubernetes_namespaces.py
-      - ${PWD}/mkp/web/plugins/wato/kubernetes_namespaces.py:/omd/versions/default/share/check_mk/web/plugins/wato/kubernetes_namespaces.py
-      - ${PWD}/mkp/web/plugins/wato/kubernetes_namespaces_cee.py:/omd/versions/default/share/check_mk/web/plugins/wato/kubernetes_namespaces_cee.py
-
+      # meta-info about package for Checkmk extensions management
+      #- ${PWD}/mkp/var/check_mk/packages/kubernetes_namespaces:/omd/sites/cmk/var/check_mk/packages/kubernetes_namespaces
+      # agent plugin to run on monitored hosts
+      - ${PWD}/mkp/local/share/check_mk/agents/plugins/kubernetes_namespaces:/omd/sites/cmk/local/share/check_mk/agents/plugins/kubernetes_namespaces
+      # bakery - not fully upgraded to the new layout in Checkmk 2.4 itself
+      - ${PWD}/mkp/local/lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py:/omd/sites/cmk/local/lib/python3/cmk/base/cee/plugins/bakery/kubernetes_namespaces.py
+      # already updated part of plugin
+      - ${PWD}/mkp/local/lib/python3/cmk_addons/plugins/kubernetes_namespaces:/omd/sites/cmk/local/lib/python3/cmk_addons/plugins/kubernetes_namespaces
