@@ -42,10 +42,7 @@ def _migrate_int_to_float(value: object) -> Mapping[str, object]:
                     if 'kubeconfig_path' in deploy_val:
                         result['deploy']['kubeconfig_path'] = deploy_val['kubeconfig_path']
                     return result
-                else:
-                    return value
-            else:
-                return value
+            return value
         # backward compatibility - migrate from old flat structure to new nested structure
         elif 'interval' in value or 'kubeconfig_path' in value:
             result = {'deploy': {}}
@@ -75,7 +72,8 @@ def _parameter_form_kubernetes_namespaces_bakery() -> Dictionary:
                 parameter_form=Dictionary(
                     title=Title('Deploy plugin'),
                     help_text=Help(
-                        'Determines how the <tt>kubernetes_namespaces</tt> plugin will run on a deployed agent or disables it on a deployed agent'),
+                        'Configure how the <tt>kubernetes_namespaces</tt> plugin will run on a deployed agent. '
+                        'Leave this section empty to disable the plugin on the deployed agent.'),
                     elements={
                         'interval': DictElement(
                             parameter_form=TimeSpan(
