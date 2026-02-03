@@ -18,6 +18,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - id: get_hash
+        # hash changes if any file in mkp/ changes - leads to new image tag
         run: echo "HASH=$(find mkp -type f -printf '%p:%s' | xargs | md5sum | cut -d\  -f1)" >> $GITHUB_OUTPUT
       - id: get_image
         run: echo "IMAGE=$(echo ghcr.io/${{ github.repository }} | tr '[:upper:]' '[:lower:]'):${{ steps.get_hash.outputs.HASH }}" >> $GITHUB_OUTPUT
