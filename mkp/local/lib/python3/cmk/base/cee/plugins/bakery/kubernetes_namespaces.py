@@ -22,11 +22,11 @@ def get_kubernetes_namespaces_files(conf: Any) -> FileGenerator:
     # with open('/tmp/debug.txt', 'a') as debug_file:
     #     debug_file.write(f'config: {conf}\n')
 
-    if isinstance(conf, dict):
-        # Extract interval and kubeconfig_path from nested 'deploy' structure
-        interval = None
-        kubeconfig_path = None
+    # Extract interval and kubeconfig_path from nested 'deploy' structure
+    interval = None
+    kubeconfig_path = None
 
+    if isinstance(conf, dict):
         # Handle new nested structure
         if conf.get('deploy') is not None and isinstance(conf['deploy'], dict):
             deploy_conf = conf['deploy']

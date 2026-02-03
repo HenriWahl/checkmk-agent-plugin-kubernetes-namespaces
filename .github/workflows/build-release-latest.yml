@@ -34,9 +34,6 @@ jobs:
       contents: read
     container:
       image: ${{ needs.build-image.outputs.image }}
-      env:
-        CMK: /omd/sites/cmk
-        SU: su - cmk -c
     steps:
       - uses: actions/checkout@v4
       # build via script

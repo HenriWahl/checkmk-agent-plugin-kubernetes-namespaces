@@ -7,7 +7,8 @@ services:
       context: .
       dockerfile: dockerfiles/checkmk/Dockerfile
       args:
-        CHECKMK_VERSION: 2.4.0p19
+        #CHECKMK_VERSION: 2.4.0p19
+        CHECKMK_VERSION: 2.3.0p38
         CMK_PASSWORD: cmkadmin
         CMK_SITE_ID: cmk
     restart: unless-stopped
@@ -17,7 +18,7 @@ services:
       TZ: Europe/Berlin
     volumes:
       # meta-info about package for Checkmk extensions management
-      #- ${PWD}/mkp/var/check_mk/packages/kubernetes_namespaces:/omd/sites/cmk/var/check_mk/packages/kubernetes_namespaces
+      - ${PWD}/mkp/var/check_mk/packages/kubernetes_namespaces:/omd/sites/cmk/var/check_mk/packages/kubernetes_namespaces
       # agent plugin to run on monitored hosts
       - ${PWD}/mkp/local/share/check_mk/agents/plugins/kubernetes_namespaces:/omd/sites/cmk/local/share/check_mk/agents/plugins/kubernetes_namespaces
       # bakery - not fully upgraded to the new layout in Checkmk 2.4 itself

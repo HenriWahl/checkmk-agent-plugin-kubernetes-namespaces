@@ -31,7 +31,7 @@ For local development the included `docker-compose.yml` file might help.
 To build the package manually, run:
 
 ```bash
-docker run -it --rm --volume $PWD:/source --workdir /source checkmk-yum build-mkp.sh
+docker run -it --rm --volume $PWD:/source --workdir /source checkmk-kubernetes_namespaces build-mkp.sh
 ```
 
 ## Usage
