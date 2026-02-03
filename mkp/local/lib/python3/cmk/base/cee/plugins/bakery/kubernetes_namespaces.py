@@ -5,46 +5,58 @@
 # ©2024 henri.wahl@ukdd.de
 
 from pathlib import Path
-from typing import TypedDict, List
+from typing import Any
 
-# Import API code
-from .bakery_api.v1 import (FileGenerator,
-                            OS,
-                            Plugin,
-                            PluginConfig,
-                            register)
+from cmk.base.cee.plugins.bakery.bakery_api.v1 import FileGenerator, OS, Plugin, PluginConfig, register
 
 
-class KubernetesNamespacesConfig(TypedDict, total=False):
+def get_kubernetes_namespaces_files(conf: Any) -> FileGenerator:
     """
-    Configuration class for Kubernetes Namespaces plugin.
+    Simple bakery plugin generator for kubernetes_namespaces
+
+    conf is a dictionary like: {'deploy': {'interval': 60.0, 'kubeconfig_path': '/etc/kubernetes/admin.conf'}}
+    For backward compatibility, it may also be a flat dictionary like: {'interval': 60.0, 'kubeconfig_path': '/etc/kubernetes/admin.conf'}
     """
-    interval: int
 
+    # debugging
+    # with open('/tmp/debug.txt', 'a') as debug_file:
+    #     debug_file.write(f'config: {conf}\n')
 
-def get_kubernetes_namespaces_plugin_files(conf: KubernetesNamespacesConfig) -> FileGenerator:
-    """
-    Generate the plugin files for Kubernetes Namespaces.
+    if isinstance(conf, dict):
+        # Extract interval and kubeconfig_path from nested 'deploy' structure
+        interval = None
+        kubeconfig_path = None
 
-    :param conf: Configuration dictionary for the plugin.
-    :return: Generator yielding Plugin objects.
-    """
-    # settings from WATO
-    interval = conf.get('interval')
+        # Handle new nested structure
+        if conf.get('deploy') is not None and isinstance(conf['deploy'], dict):
+            deploy_conf = conf['deploy']
+            if deploy_conf.get('interval') is not None:
+                interval = int(deploy_conf['interval'])
+            if deploy_conf.get('kubeconfig_path'):
+                kubeconfig_path = deploy_conf.get('kubeconfig_path')
+        # Handle old flat structure for backward compatibility
+        else:
+            if conf.get('interval') is not None:
+                interval = int(conf['interval'])
+            if conf.get('kubeconfig_path'):
+                kubeconfig_path = conf.get('kubeconfig_path')
 
-    # plugin script
-    yield Plugin(
-        base_os=OS.LINUX,
-        source=Path('kubernetes_namespaces'),
-        interval=interval)
-    if 'kubeconfig_path' in conf:
+    # only makes sense on Linux so just create for that OS
+    yield Plugin(base_os=OS.LINUX,
+                 source=Path('kubernetes_namespaces'),
+                 interval=interval
+                 )
+
+    # add config file if kubeconfig_path is set
+    if kubeconfig_path:
         yield PluginConfig(base_os=OS.LINUX,
-                           lines=[f"KUBECONFIG={conf['kubeconfig_path']}"],
+                           lines=[f"KUBECONFIG={kubeconfig_path}"],
                            target=Path("kubernetes_namespaces.cfg"),
                            include_header=True)
 
 
+# register the bakery plugin with its arguments
 register.bakery_plugin(
     name='kubernetes_namespaces',
-    files_function=get_kubernetes_namespaces_plugin_files
+    files_function=get_kubernetes_namespaces_files
 )
