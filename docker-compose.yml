@@ -2,21 +2,20 @@ services:
   checkmk:
     # feature equivalent to enterprise edition but just 30 days trial
     # nice to check extension GUI stuff
-    image: checkmk-kubernetes-namespaces
+    image: checkmk-kubernetes_namespaces
     build:
       context: .
       dockerfile: dockerfiles/checkmk/Dockerfile
       args:
-        CHECKMK_VERSION: 2.4.0p19
-        #CHECKMK_VERSION: 2.3.0p38
+        #CHECKMK_VERSION: 2.4.0p19
+        CHECKMK_VERSION: 2.3.0p38
         CMK_PASSWORD: cmkadmin
         CMK_SITE_ID: cmk
     restart: unless-stopped
     ports:
       - 5000:5000
     environment:
-      CMK_PASSWORD: cmkadmin
-      CMK_SITE_ID: cmk
+      TZ: Europe/Berlin
     volumes:
       # meta-info about package for Checkmk extensions management
       - ${PWD}/mkp/var/check_mk/packages/kubernetes_namespaces:/omd/sites/cmk/var/check_mk/packages/kubernetes_namespaces

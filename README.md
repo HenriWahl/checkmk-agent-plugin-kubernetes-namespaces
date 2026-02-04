@@ -26,6 +26,14 @@ The collected data are retrieved from local `kubectl` commands, so nothing needs
 
 For local development the included `docker-compose.yml` file might help.
 
+### Building 
+
+To build the package manually, run:
+
+```bash
+docker run -it --rm --volume $PWD:/source --workdir /source checkmk-kubernetes_namespaces build-mkp.sh
+```
+
 ## Usage
 
 Upload the `.mkp` file to your Checkmk instance.
